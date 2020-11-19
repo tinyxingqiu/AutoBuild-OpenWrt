@@ -82,7 +82,6 @@ jobs:
         CONFIG_FILE: 'x86-jingjian.config'
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-        chmod +x ./diy.sh && ./diy.sh
         cd openwrt && make defconfig
         
     - name: Download package
