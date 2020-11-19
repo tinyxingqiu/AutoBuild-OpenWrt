@@ -98,5 +98,5 @@ jobs:
     - name : Upload artifact
       uses: actions/upload-artifact@master
       with:
-        name: OpenWrt
+        name: Vip OpenWrt-x86-x64-jingjian
         path: openwrt/bin
