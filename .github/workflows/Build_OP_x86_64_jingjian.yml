@@ -99,4 +99,4 @@ jobs:
       uses: actions/upload-artifact@master
       with:
         name: Vip OpenWrt-x86-x64-jingjian
-        path: openwrt/bin
+        path: openwrt/bin/targets/x86/64
