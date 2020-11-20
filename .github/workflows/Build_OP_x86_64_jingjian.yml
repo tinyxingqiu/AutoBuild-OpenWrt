@@ -77,7 +77,7 @@ jobs:
         git clone https://github.com/jerrykuku/luci-app-jd-dailybonus.git
     #    git clone "your_github_link" package/"your_folder_name"  
       
-     - name: external theme
+    - name: external theme
       working-directory: ./openwrt/package/lean
       run: |
           rm -rf luci-theme-argon  
