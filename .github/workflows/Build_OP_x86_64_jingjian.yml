@@ -75,7 +75,13 @@ jobs:
       run: |
         git clone https://github.com/xiaorouji/openwrt-package.git package/lienol
         git clone https://github.com/jerrykuku/luci-app-jd-dailybonus.git
-    #    git clone "your_github_link" package/"your_folder_name"      
+    #    git clone "your_github_link" package/"your_folder_name"  
+      
+     - name: external theme
+      working-directory: ./openwrt/package/lean
+      run: |
+          rm -rf luci-theme-argon  
+          git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git   
 
     - name: Configuration Customization - Build_x86_64
       env:
