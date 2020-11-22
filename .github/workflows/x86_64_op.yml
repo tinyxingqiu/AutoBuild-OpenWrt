@@ -4,7 +4,7 @@
 # Author: Vip Openwrt
 #=================================================
 
-name: Build_x86_64
+name: 编译x86的openwrt
 
 on: 
   release:
@@ -62,15 +62,15 @@ jobs:
       run: |
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         cd openwrt
-        sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
+        # ssr-plus
+        # sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
         
     - name: 更新openwrt依赖
       working-directory: ./openwrt
       run: |
         ./scripts/feeds update -a
         ./scripts/feeds install -a
-        ./scripts/feeds install -a
-    - name: 导入额外依赖（SSR、京东签到）
+    - name: 导入额外依赖（passwall、京东签到）
       working-directory: ./openwrt
       run: |
         git clone https://github.com/xiaorouji/openwrt-package.git package/lienol
@@ -103,5 +103,5 @@ jobs:
     - name : 上传编译后的二进制文件
       uses: actions/upload-artifact@master
       with:
-        name: tinyxq OpenWrt-x86_64
+        name: OpenWrt-x86_64
         path: openwrt/bin
