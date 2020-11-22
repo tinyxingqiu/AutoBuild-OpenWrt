@@ -7,12 +7,12 @@
 name: 编译x86的openwrt
 
 on: 
-  release:
-    types: [published]
+  # release:
+  #  types: [published]
 
-  #push:
-  #  branches: 
-  #    - master
+  push:
+    branches: 
+      - master
 
   #schedule:
   #  - cron: 0 8 * * 5
