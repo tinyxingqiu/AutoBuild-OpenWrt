@@ -29,60 +29,31 @@ jobs:
       uses: actions/checkout@master
 
     - name: 初始化运行环境
-      env:
-        DEBIAN_FRONTEND: noninteractive
       run: |
         docker rmi `docker images -q`
-        echo "Deleting files, please wait ..."
-        sudo rm -rf \
-          /usr/share/dotnet \
-          /etc/mysql \
-          /etc/php
-        sudo -E apt-get -y purge \
-          azure-cli \
-          ghc* \
-          zulu* \
-          hhvm \
-          llvm* \
-          firefox \
-          google* \
-          dotnet* \
-          powershell \
-          openjdk* \
-          mysql* \
-          php*
+        sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php
+        sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php*
         sudo -E apt-get update
         sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev patch python3 python2.7 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex node-uglify git gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx-ucl libelf-dev autoconf automake libtool autopoint device-tree-compiler g++-multilib antlr3 gperf wget curl swig rsync
         sudo -E apt-get -y autoremove --purge
         sudo -E apt-get clean
+        
     - name: 克隆lean的代码
-      env: 
-        REPO_URL: https://github.com/coolsnowwolf/lede
-        REPO_BRANCH: master
-      run: |
-        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
-        chmod +x diy.sh
-        cd openwrt
-        $GITHUB_WORKSPACE/diy.sh
-        # lean的ssr-plus
-        # sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
+      run: git clone --depth 1 https://github.com/coolsnowwolf/lede -b master openwrt
         
     - name: 更新openwrt依赖
       working-directory: ./openwrt
-      run: |
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
-    - name: 导入额外依赖（passwall、京东签到）
+      run: ./scripts/feeds update -a && ./scripts/feeds install -a
+      
+    - name: 引用其他插件（passwall、京东签到）
       working-directory: ./openwrt
       run: |
         git clone https://github.com/xiaorouji/openwrt-package.git package/lienol
         git clone https://github.com/jerrykuku/luci-app-jd-dailybonus.git package/jerrykuku
       
-    - name: 引用其他的openwrt主题
+    - name: 加入jerrykuku的argon主题
       working-directory: ./openwrt/package/lean
-      run: |
-          rm -rf luci-theme-argon  
-          git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git   
+      run: rm -rf luci-theme-argon && git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git   
 
     - name: 编译配置
       env:
@@ -97,11 +68,13 @@ jobs:
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
+        
     - name: 开始编译固件
       working-directory: ./openwrt
       run: |
         echo -e "$(nproc) thread build."
         make -j$(nproc) V=s
+        
     - name : 上传编译后的二进制文件
       uses: actions/upload-artifact@master
       with:
