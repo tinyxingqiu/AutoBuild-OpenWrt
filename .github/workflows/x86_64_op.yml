@@ -10,9 +10,9 @@ on:
   release:
     types: [published]
 
-  #push:
-  #  branches: 
-  #    - master
+  push:
+    branches: 
+      - master
 
   #schedule:
   #  - cron: 0 8 * * 5
@@ -22,7 +22,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
 
     steps:
     - name: 检出项目代码
@@ -45,7 +45,7 @@ jobs:
       working-directory: ./openwrt
       run: ./scripts/feeds update -a && ./scripts/feeds install -a
       
-    - name: 引用其他插件（passwall、京东签到）
+    - name: 引用其他插件（passwall和京东签到）
       working-directory: ./openwrt
       run: |
         git clone https://github.com/xiaorouji/openwrt-package.git package/lienol
@@ -71,9 +71,7 @@ jobs:
         
     - name: 开始编译固件
       working-directory: ./openwrt
-      run: |
-        echo -e "$(nproc) thread build."
-        make -j$(nproc) V=s
+      run: make -j$(nproc) V=s
         
     - name : 上传编译后的二进制文件
       uses: actions/upload-artifact@master
