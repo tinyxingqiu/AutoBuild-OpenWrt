@@ -38,7 +38,7 @@ jobs:
     - name: 引用其他插件（passwall和京东签到）
       working-directory: ./openwrt
       run: |
-        git clone https://github.com/xiaorouji/openwrt-package.git package/lienol
+        git clone https://github.com/xiaorouji/openwrt-passwall.git package/lienol
         git clone https://github.com/jerrykuku/luci-app-jd-dailybonus.git package/jerrykuku
       
     - name: 加入jerrykuku的argon主题
