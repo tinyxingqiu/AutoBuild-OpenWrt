@@ -1,24 +1,14 @@
 #=================================================
 # Description: Build OpenWrt using GitHub Actions
 # Lisence: MIT
-# Author: Vip Openwrt
 #=================================================
 
 name: 编译x86的openwrt
 
 on: 
-  release:
-    types: [published]
-
-  push:
-    branches: 
-      - master
-
-  #schedule:
-  #  - cron: 0 8 * * 5
-  
-  #watch:
-  #  types: [started]
+  watch:
+    # 点击项目的star按钮时
+    types: [started]
 
 jobs:
   build:
@@ -56,11 +46,7 @@ jobs:
       run: rm -rf luci-theme-argon && git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git   
 
     - name: 编译配置
-      env:
-        CONFIG_FILE: 'x86_64.config'
-      run: |
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-        cd openwrt && make defconfig
+      run: mv x86_64.config openwrt/.config && cd openwrt && make defconfig
         
     - name: 下载openwrt依赖包
       working-directory: ./openwrt
@@ -73,8 +59,31 @@ jobs:
       working-directory: ./openwrt
       run: make -j$(nproc) V=s
         
-    - name : 上传编译后的二进制文件
-      uses: actions/upload-artifact@master
+    - name: 生成release标签
+      id: generateReleaseTag
+      run: |
+        echo "::set-output name=tag_name::$(date +"%Y.%m.%d-%H%M")"
+        touch release.txt
+        
+    - name: 编译后的文件
+      run: |
+        cd openwrt/bin/targets/*/*
+        rm -rf packages
+        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+    
+    - name: 上传固件到release
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: OpenWrt-x86_64
-        path: openwrt/bin
+        tag_name: ${{ steps.generateReleaseTag.outputs.tag_name }}
+        body_path: release.txt
+        files: ${{ env.FIRMWARE }}/*
+
+    - name: 删除多余的workfow运行日志
+      uses: ActionsRML/delete-workflow-runs@main
+      with:
+        retain_days: 1
+        keep_minimum_runs: 3
+      
+    
