@@ -15,18 +15,20 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
-    - name: 检出项目代码
+    - name: 检出本项目代码
       uses: actions/checkout@master
 
-    - name: 初始化运行环境
+    - name: 初始化编译环境
       run: |
-        docker rmi `docker images -q`
+        docker container rm -f `docker container ps -a -q`
+        docker image rm -f `docker images -q`
         sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php
-        sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php*
-        sudo -E apt-get update
-        sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev patch python3 python2.7 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex node-uglify git gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx-ucl libelf-dev autoconf automake libtool autopoint device-tree-compiler g++-multilib antlr3 gperf wget curl swig rsync
-        sudo -E apt-get -y autoremove --purge
-        sudo -E apt-get clean
+        sudo -E apt-get -qq -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php*
+        sudo -E apt-get -qq -y update
+        sudo -E apt-get -qq -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev patch python3 python2.7 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex node-uglify git gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx-ucl libelf-dev autoconf automake libtool autopoint device-tree-compiler g++-multilib antlr3 gperf wget curl swig rsync
+        sudo -E apt-get -qq -y autoremove --purge
+        sudo -E apt-get -qq -y clean
+        sudo timedatectl set-timezone "Asia/Shanghai"
         
     - name: 克隆lean的代码
       run: git clone --depth 1 https://github.com/coolsnowwolf/lede -b master openwrt
@@ -41,7 +43,7 @@ jobs:
         git clone https://github.com/xiaorouji/openwrt-passwall.git package/lienol
         git clone https://github.com/jerrykuku/luci-app-jd-dailybonus.git package/jerrykuku
       
-    - name: 加入jerrykuku的argon主题
+    - name: 引入jerrykuku的argon主题
       working-directory: ./openwrt/package/lean
       run: rm -rf luci-theme-argon && git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git   
 
@@ -51,13 +53,17 @@ jobs:
     - name: 下载openwrt依赖包
       working-directory: ./openwrt
       run: |
-        make download -j$(nproc)
+        make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         
     - name: 开始编译固件
       working-directory: ./openwrt
       run: make -j$(nproc) V=s
+    
+    - name: 查看硬盘容量
+      if: (!cancelled())
+      run: df -hT
         
     - name: 生成release标签
       id: generateReleaseTag
