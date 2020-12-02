@@ -20,7 +20,6 @@ jobs:
 
     - name: 初始化编译环境
       run: |
-        docker container rm -f `docker container ps -a -q`
         docker image rm -f `docker image ls -a -q`
         sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php
         sudo -E apt-get -qq -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php*
