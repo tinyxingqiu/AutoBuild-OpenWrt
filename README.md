@@ -1,2 +1,2 @@
-# AutoBuild-OpenWrt
-点击项目的star按钮，就会开始自动编译
+# 利用githubActions在线编译openwrt
+点击项目的star按钮，就会开始自动编译，编译完成后会把固件发布到release
