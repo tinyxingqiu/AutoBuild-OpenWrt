@@ -57,11 +57,15 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         
+    - name: 查看硬盘容量（编译前）
+      if: (!cancelled())
+      run: df -hT
+        
     - name: 开始编译固件
       working-directory: ./openwrt
       run: make -j$(nproc) V=s
     
-    - name: 查看硬盘容量
+    - name: 查看硬盘容量（编译后）
       if: (!cancelled())
       run: df -hT
         
