@@ -21,7 +21,7 @@ jobs:
     - name: 初始化编译环境
       run: |
         docker container rm -f `docker container ps -a -q`
-        docker image rm -f `docker images -q`
+        docker image rm -f `docker image ls -a -q`
         sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php
         sudo -E apt-get -qq -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php*
         sudo -E apt-get -qq -y update
@@ -31,7 +31,7 @@ jobs:
         sudo timedatectl set-timezone "Asia/Shanghai"
         
     - name: 克隆lean的代码
-      run: git clone --depth 1 https://github.com/coolsnowwolf/lede -b master openwrt
+      run: git clone --depth 1 https://github.com/coolsnowwolf/lede -b master openwrt && mv x86_64.config openwrt/.config
         
     - name: 更新openwrt依赖
       working-directory: ./openwrt
@@ -45,14 +45,12 @@ jobs:
       
     - name: 引入jerrykuku的argon主题
       working-directory: ./openwrt/package/lean
-      run: rm -rf luci-theme-argon && git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git   
-
-    - name: 编译配置
-      run: mv x86_64.config openwrt/.config && cd openwrt && make defconfig
+      run: rm -rf luci-theme-argon && git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
         
     - name: 下载openwrt依赖包
       working-directory: ./openwrt
       run: |
+        make defconfig
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
