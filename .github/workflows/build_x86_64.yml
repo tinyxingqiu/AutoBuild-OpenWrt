@@ -62,26 +62,26 @@ jobs:
       run: make -j$(nproc) V=s
     
     - name: 查看硬盘容量（编译后）
-      run: df -hT
-        
-    - name: 生成release标签
-      id: generateReleaseTag
-      run: |
-        echo "::set-output name=tag_name::$(date +"%Y.%m.%d-%H%M")"
-        touch release.txt
-        
-    - name: 编译后的文件
-      run: |
-        cd openwrt/bin/targets/*/*
-        ls -alh
-        rm -rf packages
-        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+      run: df -hT    
     
     - name: 上传固件到artifact
       uses: actions/upload-artifact@master
       with:
         name: TinyXQ OpenWrt-x86_64
         path: openwrt/bin
+    
+    - name: 生成release标签
+      id: generateReleaseTag
+      run: |
+        echo "::set-output name=tag_name::$(date +"%Y.%m.%d-%H%M")"
+        touch release.txt
+        
+    - name: 找到编译后的bin目录
+      run: |
+        cd openwrt/bin/targets/*/*
+        ls -alh
+        rm -rf packages
+        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
     
     - name: 上传固件到release
       uses: softprops/action-gh-release@v1
