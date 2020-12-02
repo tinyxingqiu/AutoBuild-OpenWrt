@@ -21,7 +21,7 @@ jobs:
     - name: 初始化编译环境
       run: |
         docker image rm -f `docker image ls -a -q`
-        sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php
+        sudo rm -rf /usr/share/dotnet /etc/mysql
         sudo -E apt-get -qq -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php*
         sudo -E apt-get -qq -y update
         sudo -E apt-get -qq -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev patch python3 python2.7 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex node-uglify git gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx-ucl libelf-dev autoconf automake libtool autopoint device-tree-compiler g++-multilib antlr3 gperf wget curl swig rsync
@@ -55,7 +55,6 @@ jobs:
         find dl -size -1024c -exec rm -f {} \;
         
     - name: 查看硬盘容量（编译前）
-      if: (!cancelled())
       run: df -hT
         
     - name: 开始编译固件
@@ -63,7 +62,6 @@ jobs:
       run: make -j$(nproc) V=s
     
     - name: 查看硬盘容量（编译后）
-      if: (!cancelled())
       run: df -hT
         
     - name: 生成release标签
@@ -75,6 +73,7 @@ jobs:
     - name: 编译后的文件
       run: |
         cd openwrt/bin/targets/*/*
+        ls -alh
         rm -rf packages
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
     
@@ -95,7 +94,6 @@ jobs:
       
     - name: 删除多余的release
       uses: dev-drprasad/delete-older-releases@v0.1.0
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
         keep_latest: 3
         delete_tags: true
