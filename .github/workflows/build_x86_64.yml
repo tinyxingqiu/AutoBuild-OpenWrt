@@ -68,7 +68,7 @@ jobs:
       uses: actions/upload-artifact@master
       with:
         name: OpenWrt-x86_64
-        path: openwrt/bin
+        path: openwrt/bin/targets/
     
     - name: 生成release标签
       id: generateReleaseTag
@@ -78,9 +78,9 @@ jobs:
         
     - name: 找到编译后的bin目录
       run: |
-        cd openwrt/bin/targets/*/*
+        cd openwrt/bin/targets/x86/64/
         ls -alh
-        rm -rf packages
+        rm -rf *.buildinfo *.bin *.manifest packages/ 
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
     
     - name: 上传固件到release
