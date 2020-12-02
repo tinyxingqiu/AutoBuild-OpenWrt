@@ -69,26 +69,26 @@ jobs:
       with:
         name: OpenWrt-x86_64
         path: openwrt/bin/targets/
-    
-    - name: 生成release标签
-      id: generateReleaseTag
-      run: |
-        echo "::set-output name=tag_name::$(date +"%Y.%m.%d-%H%M")"
-        touch release.txt
         
     - name: 找到编译后的bin目录
       run: |
         cd openwrt/bin/targets/x86/64/
+        # 查看文件列表
         ls -alh
+        # 删除没用的文件
         rm -rf *.buildinfo *.bin *.manifest packages/ 
-        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+        # 标记出要发布到release的文件目录
+        echo "RELEASE_DIR=$PWD" >> $GITHUB_ENV
+        
+    - name: 生成release标签
+      id: generateReleaseTag
+      run: echo "::set-output name=tag_name::$(date +"%Y.%m.%d-%H%M")"
     
-    - name: 上传固件到release
+    - name: 发布固件到release
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ steps.generateReleaseTag.outputs.tag_name }}
-        body_path: release.txt
-        files: ${{ env.FIRMWARE }}/*
+        files: ${{ env.RELEASE_DIR }}/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
