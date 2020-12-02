@@ -77,20 +77,20 @@ jobs:
         rm -rf packages
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
     
+    - name: 上传固件到artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: TinyXQ OpenWrt-x86_64
+        path: openwrt/bin
+    
     - name: 上传固件到release
       uses: softprops/action-gh-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ steps.generateReleaseTag.outputs.tag_name }}
         body_path: release.txt
         files: ${{ env.FIRMWARE }}/*
-
-    - name: 删除多余的workfow运行日志
-      uses: ActionsRML/delete-workflow-runs@main
-      with:
-        retain_days: 1
-        keep_minimum_runs: 3
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
     - name: 删除多余的release
       uses: dev-drprasad/delete-older-releases@v0.1.0
@@ -99,4 +99,10 @@ jobs:
         delete_tags: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+    - name: 删除多余的workfow运行日志
+      uses: ActionsRML/delete-workflow-runs@main
+      with:
+        retain_days: 1
+        keep_minimum_runs: 3
     
